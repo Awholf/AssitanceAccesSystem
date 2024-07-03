@@ -9,7 +9,7 @@ Sigue estos pasos para configurar el proyecto en tu máquina local:
    cd AssistanceAccesSystem
 2. **Crea un Entorno Virtual**
    ```bash
-   python -m venv venv
+   python -m venv env
    source venv/bin/activate  # En Windows usa `venv\Scripts\activate`
 3. **Instala Dependencias**
    ```bash
