@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import time
-from database import init_db, get_students, mark_attendance, view_students, view_attendance, generate_excel
+from src.database import init_db, get_students, mark_attendance, view_students, view_attendance, generate_excel
 # Inicialización de la base de datos
 init_db()
 

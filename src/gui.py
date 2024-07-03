@@ -1,9 +1,9 @@
 import cv2
 import tkinter as tk
 from tkinter import messagebox
-from train_model import train_model
-from main import run_recognition
-from database import init_db, add_student, generate_excel
+from src.train_model import train_model
+from src.main import run_recognition
+from src.database import init_db, add_student, generate_excel
 import numpy as np
 from openpyxl.worksheet.datavalidation import DataValidation
 
