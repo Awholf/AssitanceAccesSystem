@@ -5,6 +5,7 @@ from train_model import train_model
 from main import run_recognition
 from database import init_db, add_student, generate_excel
 import numpy as np
+import os
 
 # Inicializar la base de datos
 init_db()
@@ -14,7 +15,7 @@ def capture_face():
     cap = None
 
     for backend in backends:
-        cap = cv2.VideoCapture(0, backend)
+        cap = cv2.VideoCapture(1, backend)
         if cap.isOpened():
             print(f"Using backend: {backend}")
             break
@@ -33,12 +34,11 @@ def capture_face():
         if cv2.waitKey(1) & 0xFF == ord('s'):  # Presiona 's' para capturar la imagen
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),
-                                                  flags=cv2.CASCADE_SCALE_IMAGE)
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30), flags=cv2.CASCADE_SCALE_IMAGE)
 
             if len(faces) == 1:
                 x, y, w, h = faces[0]
-                face = gray[y:y + h, x:x + w]
+                face = gray[y:y+h, x:x+w]
                 cap.release()
                 cv2.destroyAllWindows()
                 return face
@@ -73,6 +73,13 @@ def add_student_callback():
     if face is None:
         return
 
+    # Guardar la imagen capturada en el dataset
+    base_dir = 'dataset'
+    student_dir = os.path.join(base_dir, name)
+    os.makedirs(student_dir, exist_ok=True)
+    cv2.imwrite(os.path.join(student_dir, f"{name}.jpg"), face)
+    
+    # Añadir el estudiante a la base de datos
     face_recognizer = cv2.face.LBPHFaceRecognizer_create()
     face_recognizer.train([face], np.array([0]))  # Entrenar temporalmente con un solo rostro
     face_encoding = face_recognizer.getHistograms()[0]
@@ -82,6 +89,13 @@ def add_student_callback():
         messagebox.showinfo("Éxito", "Estudiante agregado correctamente.")
     except Exception as e:
         messagebox.showerror("Error", f"Error al agregar estudiante: {e}")
+
+def generate_excel_callback():
+    try:
+        generate_excel()
+        messagebox.showinfo("Éxito", "Reporte de asistencia generado correctamente.")
+    except Exception as e:
+        messagebox.showerror("Error", f"Error al generar el reporte de asistencia: {e}")
 
 # Crear la ventana principal
 root = tk.Tk()
@@ -133,7 +147,7 @@ train_button.pack(pady=10)
 recognize_button = tk.Button(root, text="Iniciar Reconocimiento", **button_style, command=run_recognition_callback)
 recognize_button.pack(pady=10)
 
-generate_excel_button = tk.Button(root, text="Generar Reporte de Asistencia", **button_style, command=generate_excel)
+generate_excel_button = tk.Button(root, text="Generar Reporte de Asistencia", **button_style, command=generate_excel_callback)
 generate_excel_button.pack(pady=10)
 
 # Iniciar el bucle principal de la interfaz gráfica
