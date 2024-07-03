@@ -1,22 +1,20 @@
 import cv2
 import tkinter as tk
 from tkinter import messagebox
-from src.train_model import train_model
-from src.main import run_recognition
-from src.database import init_db, add_student, generate_excel
+from train_model import train_model
+from main import run_recognition
+from database import init_db, add_student, generate_excel
 import numpy as np
-from openpyxl.worksheet.datavalidation import DataValidation
 
 # Inicializar la base de datos
 init_db()
-
 
 def capture_face():
     backends = [cv2.CAP_DSHOW, cv2.CAP_MSMF, cv2.CAP_VFW, cv2.CAP_ANY]
     cap = None
 
     for backend in backends:
-        cap = cv2.VideoCapture(1, backend)
+        cap = cv2.VideoCapture(0, backend)
         if cap.isOpened():
             print(f"Using backend: {backend}")
             break
@@ -52,7 +50,6 @@ def capture_face():
             break
     return None
 
-
 def train_model_callback():
     try:
         train_model()
@@ -60,13 +57,11 @@ def train_model_callback():
     except Exception as e:
         messagebox.showerror("Error", f"Error al entrenar el modelo: {e}")
 
-
 def run_recognition_callback():
     try:
         run_recognition()
     except Exception as e:
-        messagebox.showerror("Error", f"Error al ejecutar el reconocimiento: {e}")
-
+        messagebox.showerror("Error", f"Error al iniciar el reconocimiento: {e}")
 
 def add_student_callback():
     name = name_entry.get()
@@ -88,40 +83,58 @@ def add_student_callback():
     except Exception as e:
         messagebox.showerror("Error", f"Error al agregar estudiante: {e}")
 
-
 # Crear la ventana principal
 root = tk.Tk()
 root.title("Sistema de Reconocimiento Facial")
+root.geometry("800x600")
+root.configure(bg="#8B0000")  # Fondo rojo vino
 
-# Crear widgets
-train_button = tk.Button(root, text="Entrenar Modelo", command=train_model_callback)
-recognize_button = tk.Button(root, text="Iniciar Reconocimiento", command=run_recognition_callback)
-name_label = tk.Label(root, text="Nombre del Estudiante:")
-name_entry = tk.Entry(root)
-add_student_button = tk.Button(root, text="Agregar Estudiante", command=add_student_callback)
+# Estilos personalizados
+button_style = {
+    "font": ("Helvetica", 14, "bold"),
+    "bg": "#1A237E",  # Azul oscuro
+    "fg": "white",
+    "relief": "flat",
+    "borderwidth": 0,
+    "highlightthickness": 0,
+    "width": 25
+}
+label_style = {
+    "font": ("Helvetica", 12, "bold"),
+    "bg": "#8B0000",
+    "fg": "white"
+}
+entry_style = {
+    "font": ("Helvetica", 12),
+    "bg": "#ffffff",
+    "fg": "#000000",
+    "relief": "flat",
+    "borderwidth": 1,
+    "highlightthickness": 1,
+    "width": 30
+}
 
-# Colocar widgets en la ventana
-train_button.pack(pady=10)
-recognize_button.pack(pady=10)
-name_label.pack(pady=5)
-name_entry.pack(pady=5)
+# Crear widgets con estilo mejorado
+title_label = tk.Label(root, text="Sistema de Reconocimiento Facial", font=("Helvetica", 18, "bold"), bg="#8B0000", fg="white")
+title_label.pack(pady=20)
+
+instruction_label = tk.Label(root, text="Ingrese nombre del estudiante:", **label_style)
+instruction_label.pack()
+
+name_entry = tk.Entry(root, **entry_style)
+name_entry.pack(pady=10)
+
+add_student_button = tk.Button(root, text="Agregar Estudiante", **button_style, command=add_student_callback)
 add_student_button.pack(pady=10)
+
+train_button = tk.Button(root, text="Entrenar Modelo", **button_style, command=train_model_callback)
+train_button.pack(pady=10)
+
+recognize_button = tk.Button(root, text="Iniciar Reconocimiento", **button_style, command=run_recognition_callback)
+recognize_button.pack(pady=10)
+
+generate_excel_button = tk.Button(root, text="Generar Reporte de Asistencia", **button_style, command=generate_excel)
+generate_excel_button.pack(pady=10)
 
 # Iniciar el bucle principal de la interfaz gráfica
 root.mainloop()
-def create_widgets(self):
-    # ... otros widgets
-
-    # Botón para generar el archivo Excel
-    self.generate_excel_button = tk.Button(self.root, text="Generar Reporte de Asistencia", font=("Helvetica", 14, "bold"), bg="#4d4dff", fg="white", command=self.generate_excel_report)
-    self.generate_excel_button.place(x=400, y=500, width=360, height=50)
-
-def generate_excel_report(self):
-    generate_excel()
-    messagebox.showinfo("Reporte generado", "El reporte de asistencia se ha generado exitosamente como 'attendance_report.xlsx'.")
-
-if __name__ == "__main__":
-    # Llamar a las funciones de visualización de datos
-    generate_excel()
-
-    # Iniciar el reconocimiento facial
